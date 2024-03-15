@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "34509632847",
+    "firebase_url": "https://transmaa-customer-default-rtdb.firebaseio.com",
+    "project_id": "transmaa-customer",
+    "storage_bucket": "transmaa-customer.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34509632847:android:46668aab0c09568688813a",
+        "android_client_info": {
+          "package_name": "com.example.customer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCigDAYUtYTDEZc6DeaNmV-Uf5obWBoaNY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34509632847:android:aa8a161f976f17c988813a",
+        "android_client_info": {
+          "package_name": "com.example.drivers"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCigDAYUtYTDEZc6DeaNmV-Uf5obWBoaNY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34509632847:android:7b61ad28698c619288813a",
+        "android_client_info": {
+          "package_name": "com.example.transmaa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCigDAYUtYTDEZc6DeaNmV-Uf5obWBoaNY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
