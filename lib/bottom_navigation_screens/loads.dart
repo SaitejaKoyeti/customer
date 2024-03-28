@@ -40,11 +40,13 @@ class _LoadsState extends State<Loads> {
   List<PlaceSuggestion> _fromSuggestions = [];
   List<PlaceSuggestion> _toSuggestions = [];
 
-  String? name; // Define userName here
+
+  String userName = '';
 
   @override
   void initState() {
     super.initState();
+    fetchUserData();
     _controller = ScrollController();
     timer = Timer.periodic(Duration(seconds: 3), (Timer t) {
       if (_currentIndex < 1) {
@@ -62,7 +64,6 @@ class _LoadsState extends State<Loads> {
     _fromController = TextEditingController();
     _toController = TextEditingController();
 
-    fetchUserData(); // Fetch the user name when the widget initializes
   }
 
   @override
@@ -78,7 +79,7 @@ class _LoadsState extends State<Loads> {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      // Get user document from Firestore
+
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('user')
           .doc(user.uid)
@@ -86,16 +87,17 @@ class _LoadsState extends State<Loads> {
 
       // Extract user data from the document
       setState(() {
-        name = userDoc['name'];
-
+        userName = userDoc['name'];
       });
     }
   }
 
+
   Future<List<PlaceSuggestion>> fetchFromSuggestions(String query) async {
     try {
       final response = await http.get(
-        Uri.parse('https://nominatim.openstreetmap.org/search?q=$query&format=json&viewbox=68.1,6.5,97.4,35.5&bounded=1&countrycodes=in'),
+        Uri.parse(
+            'https://nominatim.openstreetmap.org/search?q=$query&format=json&viewbox=68.1,6.5,97.4,35.5&bounded=1&countrycodes=in'),
       );
 
       if (response.statusCode == 200) {
@@ -111,6 +113,7 @@ class _LoadsState extends State<Loads> {
       return [];
     }
   }
+
   void _swapTextFields() {
     String temp = _fromController.text;
     _fromController.text = _toController.text;
@@ -127,7 +130,7 @@ class _LoadsState extends State<Loads> {
             Padding(
               padding: EdgeInsets.only(left: 18, top: 15),
               child: Text(
-                "Hi ${name ?? 'there'},", // Display user name here
+                "Hi $userName", // Display user name here
                 style: TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
@@ -329,7 +332,10 @@ class _LoadsState extends State<Loads> {
                                 }),
                           ),
                           onPressed: () {
-                            Navigator.push(
+                            // Check if both text fields are not empty
+                            if (_fromController.text.isNotEmpty && _toController.text.isNotEmpty) {
+                              // Both fields are filled, navigate to the next screen
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => MyForm(
@@ -338,8 +344,37 @@ class _LoadsState extends State<Loads> {
                                     fromLocation: _fromController.text,
                                     toLocation: _toController.text,
                                   ),
-                                )
-                            );},
+                                ),
+                              );
+                            } else {
+                              String errorMessage = '';
+                              if (_fromController.text.isEmpty) {
+                                errorMessage += "Please fill 'From' field.\n";
+                              }
+                              if (_toController.text.isEmpty) {
+                                errorMessage += "Please fill 'To' field.\n";
+                              }
+
+                              // Show error message indicating empty field(s)
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text("Error"),
+                                    content: Text(errorMessage),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("OK"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
                           child: Text(
                             "Confirm",
                             style: TextStyle(color: Colors.black, fontSize: 20),

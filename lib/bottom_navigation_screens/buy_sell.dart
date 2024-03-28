@@ -20,7 +20,7 @@ class _BuyAndSellState extends State<BuyAndSell> {
   final TextEditingController yearsOfVehicleController =
   TextEditingController();
 
-  bool showTextFields = false;
+  bool showTextFields = false; // Changed initial state to false
   Color sellButtonColor = Colors.orangeAccent;
   Color byeButtonColor = Colors.orangeAccent;
   bool isDataComplete = false;
@@ -90,14 +90,15 @@ class _BuyAndSellState extends State<BuyAndSell> {
   @override
   void initState() {
     super.initState();
-    showTextFields = false;
     _buyCollection = FirebaseFirestore.instance.collection('Buycollection');
   }
 
   Future<void> fetchAndDisplayData() async {
     try {
+      // Fetch data from Firestore
       QuerySnapshot querySnapshot = await _buyCollection.get();
 
+      // Update the list to store fetched data
       List<Map<String, dynamic>> fetchedData = [];
       querySnapshot.docs.forEach((doc) {
         fetchedData.add({
@@ -108,6 +109,7 @@ class _BuyAndSellState extends State<BuyAndSell> {
         });
       });
 
+      // Update state to trigger UI update
       setState(() {
         _buyData = fetchedData;
       });
@@ -149,38 +151,45 @@ class _BuyAndSellState extends State<BuyAndSell> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 20),
+              padding: const EdgeInsets.only(left: 40),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     " ${data['company']}",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
-                        fontSize: 16),
+                        fontSize: 14),
                   ),
                   Text(
                     'Vehicle Model:',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
                   Text(
                     "${data['vehicleModel']}",
-                    style: TextStyle(color: Colors.black, fontSize: 16),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontSize: 14),
                   ),
                   Text(
                     'Years of Vehicle:',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
                   Text(
                     " ${data['yearsOfVehicle']}",
-                    style: TextStyle(color: Colors.black, fontSize: 16),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontSize: 14),
                   ),
                   SizedBox(
                     height: 8,
@@ -294,9 +303,7 @@ class _BuyAndSellState extends State<BuyAndSell> {
                   ),
                 ],
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20,),
               if (showTextFields) ...[
                 Container(
                   decoration: BoxDecoration(
@@ -318,131 +325,105 @@ class _BuyAndSellState extends State<BuyAndSell> {
                       children: [
                         TextFormField(
                           controller: nameController,
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
+                          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold,fontSize: 16),
                           decoration: InputDecoration(
                             labelText: 'Name',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.cyan[200],
+                            labelStyle: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                            fillColor: Colors.white,
                             filled: true,
                             border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            contentPadding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                           ),
                         ),
                         SizedBox(height: 10),
                         TextFormField(
                           controller: phoneNumberController,
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
+                          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold,fontSize: 16),
                           decoration: InputDecoration(
                             labelText: 'Phone Number',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.cyan[200],
+                            labelStyle: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                            fillColor: Colors.white,
                             filled: true,
                             border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            contentPadding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                           ),
                         ),
                         SizedBox(height: 10),
                         TextFormField(
                           controller: vehicleNoController,
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
+                          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold,fontSize: 16),
                           decoration: InputDecoration(
                             labelText: 'Vehicle No',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.cyan[200],
+                            labelStyle: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                            fillColor: Colors.white,
                             filled: true,
                             border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            contentPadding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                           ),
                         ),
                         SizedBox(height: 10),
                         TextFormField(
                           controller: vehicleModelController,
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
+                          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold,fontSize: 16),
                           decoration: InputDecoration(
                             labelText: 'Vehicle Model',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.cyan[200],
+                            labelStyle: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                            fillColor: Colors.white,
                             filled: true,
                             border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            contentPadding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                           ),
                         ),
                         SizedBox(height: 10),
                         TextFormField(
                           controller: rcNoController,
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
+                          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold,fontSize: 16),
                           decoration: InputDecoration(
                             labelText: 'RC No',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.cyan[200],
+                            labelStyle: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                            fillColor: Colors.white,
                             filled: true,
                             border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            contentPadding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                           ),
                         ),
                         SizedBox(height: 10),
                         TextFormField(
                           controller: yearsOfVehicleController,
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
+                          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold,fontSize: 16),
                           decoration: InputDecoration(
                             labelText: 'Years of Vehicle',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.cyan[200],
+                            labelStyle: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+                            fillColor: Colors.white,
                             filled: true,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
+                                vertical: 8,
+                                horizontal: 12),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 10,
-                ),
+                SizedBox(height: 10,),
                 Row(
                   children: [
                     Padding(padding: EdgeInsets.only(left: 20)),
@@ -453,6 +434,7 @@ class _BuyAndSellState extends State<BuyAndSell> {
                             color: Colors.black)),
                   ],
                 ),
+                SizedBox(height: 10,),
                 buildImagePick(),
                 SizedBox(height: 10),
                 ElevatedButton(
@@ -460,7 +442,8 @@ class _BuyAndSellState extends State<BuyAndSell> {
                     if (areFieldsValid()) {
                       String imageURLs = await saveUserDataToFirestore();
                       setState(() {
-                        saveButtonColor = Colors.green;
+                        saveButtonColor =
+                            Colors.green;
                         isDataComplete = true;
                       });
                       for (int i = 0; i < _images.length; i++) {
@@ -470,7 +453,8 @@ class _BuyAndSellState extends State<BuyAndSell> {
                       }
                     } else {
                       setState(() {
-                        saveButtonColor = Colors.yellow;
+                        saveButtonColor =
+                            Colors.yellow;
                       });
                     }
                   },
@@ -483,17 +467,11 @@ class _BuyAndSellState extends State<BuyAndSell> {
                       return saveButtonColor;
                     }),
                   ),
-                  child: Text(
-                    'Save Data',
-                    style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
+                  child: Text('Save Data',
+                    style: TextStyle(fontSize: 15,color: Colors.white,fontWeight: FontWeight.bold),
                   ),
                 ),
-                SizedBox(
-                  height: 20,
-                ),
+                SizedBox(height: 20,),
               ],
               if (!showTextFields) ...[
                 Container(
@@ -544,80 +522,80 @@ class _BuyAndSellState extends State<BuyAndSell> {
       }),
     );
   }
+}
 
-  void _showInterestForm(BuildContext context, Map<String, dynamic> data) {
-    TextEditingController nameController = TextEditingController();
-    TextEditingController phoneNumberController = TextEditingController();
 
-    // Retrieve current user details
-    User? user = FirebaseAuth.instance.currentUser;
-    String? currentUserDisplayName = user?.displayName;
-    String? currentUserPhoneNumber = user?.phoneNumber;
+void _showInterestForm(BuildContext context, Map<String, dynamic> data) {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController phoneNumberController = TextEditingController();
+
+  // Retrieve current user details
+  User? user = FirebaseAuth.instance.currentUser;
+  String? currentUserDisplayName = user?.displayName;
+  String? currentUserPhoneNumber = user?.phoneNumber;
 
 // Pre-fill the form with current user details if available
-    nameController.text = currentUserDisplayName ?? '';
-    phoneNumberController.text = currentUserPhoneNumber ?? '';
+  nameController.text = currentUserDisplayName ?? '';
+  phoneNumberController.text = currentUserPhoneNumber ?? '';
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Interested to Buy"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: 'Name'),
-              ),
-              TextField(
-                controller: phoneNumberController,
-                decoration: InputDecoration(labelText: 'Phone Number'),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Interested to Buy"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: 'Name'),
             ),
-            TextButton(
-              onPressed: () async {
-                await _addToInterestedCollection(
-                  data,
-                  nameController.text,
-                  phoneNumberController.text,
-                );
-                Navigator.of(context).pop();
-              },
-              child: Text('Submit'),
+            TextField(
+              controller: phoneNumberController,
+              decoration: InputDecoration(labelText: 'Phone Number'),
             ),
           ],
-        );
-      },
-    );
-  }
-
-// Store the user details along with other data in Firebase Firestore
-  Future<void> _addToInterestedCollection(
-      Map<String, dynamic> data, String name, String phoneNumber) async {
-    try {
-      await FirebaseFirestore.instance.collection('Interestedtobuy').add({
-        'Company': data['company'],
-        'VehicleModel': data['vehicleModel'],
-        'Year': data['yearsOfVehicle'],
-        'ImageURLs': data['imageURLs'],
-        'CustomerName':name,
-        'CustomerPhoneNumber': phoneNumber,
-        'UserID': FirebaseAuth.instance.currentUser?.uid, // Optionally store user ID
-      });
-    } catch (e) {
-      print('Error adding to InterestedCollection: $e');
-    }
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await _addToInterestedCollection(
+                data,
+                nameController.text,
+                phoneNumberController.text,
+              );
+              Navigator.of(context).pop();
+            },
+            child: Text('Submit'),
+          ),
+        ],
+      );
+    },
+  );
+}
+Future<void> _addToInterestedCollection(
+    Map<String, dynamic> data, String name, String phoneNumber) async {
+  try {
+    await FirebaseFirestore.instance.collection('Interestedtobuy').add({
+      'Company': data['company'],
+      'VehicleModel': data['vehicleModel'],
+      'Year': data['yearsOfVehicle'],
+      'ImageURLs': data['imageURLs'],
+      'CustomerName':name,
+      'CustomerPhoneNumber': phoneNumber,
+      'UserID': FirebaseAuth.instance.currentUser?.uid, // Optionally store user ID
+    });
+  } catch (e) {
+    print('Error adding to InterestedCollection: $e');
   }
 }
+
 
 class ImagePick extends StatefulWidget {
   final Function(Uint8List?) onImagePicked;
@@ -681,11 +659,11 @@ class _ImagePickState extends State<ImagePick> {
               children: [
                 Container(
                   child: Text(
-                    'Image',
+                    'Front side',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Divider(thickness: 1, color: Colors.brown,),
+                Divider(thickness: 1,color: Colors.brown,),
                 Padding(
                   padding: const EdgeInsets.all(6),
                   child: Stack(

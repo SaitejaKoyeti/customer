@@ -45,13 +45,16 @@ class _MyFormState extends State<MyForm> {
     'Ceramics/Sanitary/Hardware',
     'Paper/Packaging/Printed Material',
   ];
-
   List<Truck> trucks = [
-    Truck(imagePath: 'assets/truck2-removebg-preview.png', name: 'Tipper', price: 500.0, weightCapacity: 4 - 30),
-    Truck(imagePath: 'assets/truck22 remove.png', name: ' Container', price: 600.0, weightCapacity: 4 - 30),
-    Truck(imagePath: 'assets/truck_3-removebg-preview.png', name: 'Open', price: 700.0, weightCapacity: 4 - 30),
-    Truck(imagePath: 'assets/truck_4-removebg-preview.png', name: 'Double Container', price: 800.0, weightCapacity: 1800.0),
-    Truck(imagePath: 'assets/truck_5-removebg-preview.png', name: 'Tanker', price: 900.0, weightCapacity: 2000.0),
+    Truck(imagePath: 'assets/trucks/minipickup.png', name: 'Mini/pickup',  weightCapacity: '0.75-2',),
+    Truck(imagePath: 'assets/trucks/lcv.png', name: 'LCV', weightCapacity: '2.5-7',),
+    Truck(imagePath: 'assets/trucks/open.png', name: 'Open', weightCapacity: '7-11',),
+    Truck(imagePath: 'assets/trucks/dumper.png', name: 'Dumper', weightCapacity: '9-16', ),
+    Truck(imagePath: 'assets/trucks/tipper.png', name: 'Tipper',weightCapacity: '9-24',),
+    Truck(imagePath: 'assets/trucks/container.png', name: 'Container',weightCapacity: '9-30', ),
+    Truck(imagePath: 'assets/trucks/trailer.png', name: 'Trailer',weightCapacity: '16-43',),
+    Truck(imagePath: 'assets/trucks/bulker.png', name: 'Bulker', weightCapacity: '20-36', ),
+    Truck(imagePath: 'assets/trucks/tanker.png', name: 'Tanker', weightCapacity: '8-36',),
   ];
 
   @override
@@ -99,98 +102,14 @@ class _MyFormState extends State<MyForm> {
   }
 
   void _showPopup(BuildContext context, int index) {
-    final RenderBox overlay = Overlay.of(context)!.context.findRenderObject() as RenderBox;
-
-    final double screenHeight = overlay.size.height;
-    final double popupHeight = 240.0; // Adjust the height of the popup as needed
-
-    showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        overlay.size.width - 180, // Right edge of the screen
-        (screenHeight - popupHeight) / 2, // Center vertically
-        overlay.size.width, // Right edge of the screen
-        (screenHeight + popupHeight) / 2, // Center vertically
-      ),
-      items: [
-        PopupMenuItem(
-          child: Row(
-            children: [
-              SizedBox(width: 8),
-              Text('4-7 Tons'),
-            ],
-          ),
-          value: '4-7 Tons',
-        ),
-        PopupMenuItem(
-          child: Row(
-            children: [
-              SizedBox(width: 8),
-              Text('8-10 Tons'),
-            ],
-          ),
-          value: '8-10 Tons',
-        ),
-        PopupMenuItem(
-          child: Row(
-            children: [
-              SizedBox(width: 8),
-              Text('11-14 Tons'),
-            ],
-          ),
-          value: '11-14 Tons',
-        ),
-        PopupMenuItem(
-          child: Row(
-            children: [
-              SizedBox(width: 8),
-              Text('15-17 Tons'),
-            ],
-          ),
-          value: '15-17 Tons',
-        ),
-        PopupMenuItem(
-          child: Row(
-            children: [
-              SizedBox(width: 8),
-              Text('18-25 Tons'),
-            ],
-          ),
-          value: '18-25 Tons',
-        ),
-        PopupMenuItem(
-          child: Row(
-            children: [
-              SizedBox(width: 8),
-              Text('26-30 Tons'),
-            ],
-          ),
-          value: '26-30 Tons',
-        ),
-        PopupMenuItem(
-          child: Row(
-            children: [
-              SizedBox(width: 8),
-              Text('30+ Tons'),
-            ],
-          ),
-          value: '30+ Tons',
-        ),
-      ],
-    ).then((value) {
-      if (value != null) {
-        setState(() {
-          // Deselect previously selected truck
-          trucks.forEach((truck) {
-            truck.isSelected = false;
-          });
-          // Select the current truck
-          selectedTruck = trucks[index];
-          selectedTruck!.isSelected = true;
-
-          selectedLoad = value as String;
-        });
-      }
+    setState(() {
+      // Deselect previously selected truck
+      trucks.forEach((truck) {
+        truck.isSelected = false;
+      });
+      // Select the current truck
+      selectedTruck = trucks[index];
+      selectedTruck!.isSelected = true;
     });
   }
   void _navigateToConfirmationPage() {
@@ -216,11 +135,12 @@ class _MyFormState extends State<MyForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Booking Form'),
+        title: Text('Choose a truck'),
       ),
-      body: Padding(
+      body:Padding(
         padding: EdgeInsets.all(16.0),
-        child: ListView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               'Select Date and Time',
@@ -340,79 +260,75 @@ class _MyFormState extends State<MyForm> {
               ),
             ),
             SizedBox(height: 16.0),
-            for (int index = 0; index < trucks.length; index++)
-              Container(
-                margin: EdgeInsets.only(bottom: 8.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _showPopup(context, index);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.orange, backgroundColor: selectedTruck == trucks[index] ? Colors.orange[300] : Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+            Expanded(
+              child: ListView.builder(
+                itemCount: trucks.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 8.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _showPopup(context, index);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.orange,
+                        backgroundColor:
+                        selectedTruck == trucks[index] ? Colors.orange[300] : Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              Image.asset(
+                                trucks[index].imagePath,
+                                height: 60.0,
+                                width: 138.0,
+                                fit: BoxFit.cover,
+                              ),
+                              SizedBox(height: 4.0),
+                              Text(
+                                trucks[index].name,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(width: 8.0),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+
+                              Text(
+                                'Capacity: ${trucks[index].weightCapacity.toString()} Tons',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                        ],
+                      ),
                     ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        children: [
-                          Image.asset(
-                            trucks[index].imagePath,
-                            height: 60.0,
-                            width: 120.0,
-                            fit: BoxFit.cover,
-                          ),
-                          SizedBox(height: 4.0),
-                          Text(
-                            trucks[index].name,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 8.0),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-
-                          Text(
-                            'Price: \$${trucks[index].price.toString()}',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12,
-                            ),
-                          ),
-                          Text(
-                            'Capacity: ${trucks[index].weightCapacity.toString()} Tons',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (selectedTruck == trucks[index]) // Display only for the selected truck
-                         Text(
-                            selectedLoad ?? 'Select Load', // Display the selected load or 'Select Load' if no load is selected
-                            style: TextStyle(color: Colors.black),
-                          ),
-
-                    ],
-                  ),
-                ),
+                  );
+                },
               ),
-            SizedBox(height: 130.0),
+            ),
             ElevatedButton(
               onPressed: () {
                 _navigateToConfirmationPage();
               },
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.black,
               ),
               child: Text(
                 'Book Pickup',
@@ -422,6 +338,7 @@ class _MyFormState extends State<MyForm> {
           ],
         ),
       ),
+
     );
   }
 }

@@ -45,7 +45,6 @@ class ConfirmationPage extends StatelessWidget {
           'selectedTime': selectedTime.toString(),
           'selectedTruck': {
             'name': selectedTruck?.name ?? '',
-            'price': selectedTruck?.price ?? 0,
             'weightCapacity': selectedTruck?.weightCapacity ?? 0,
           },
           'customerName': name,
@@ -145,11 +144,7 @@ class ConfirmationPage extends StatelessWidget {
                                   fontSize: 16.0, fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 8.0),
-                            Text(
-                              '\$${selectedTruck.price}',
-                              style: TextStyle(
-                                  fontSize: 16.0, fontWeight: FontWeight.bold),
-                            ),
+
                           ],
                         ),
                       ),

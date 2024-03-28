@@ -5,8 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../login/login_page.dart';
 import '../profile/aboutpage.dart';
 import '../profile/help.dart';
-import '../profile/notifications.dart';
-import 'history.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -51,62 +49,65 @@ class _ProfileState extends State<Profile> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          children: [Row(
-            children: [
-              SizedBox(height: 10,),
-            // Profile Avatar
-              CircleAvatar(
-                radius: 25, // Adjust the radius as needed
-                backgroundColor: Colors.orange[200], // Set background color if needed
-                child: Icon(
-                  Icons.person, // Specify the icon you want to use
-                  size: 25, // Adjust the size of the icon as needed
-                  color: Colors.white, // Set the color of the icon
-                ),
-              ),
-
-              SizedBox(width: 10), // Add spacing between avatar and text
-
-        // Column for text information
-          Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '$userName',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 5), // Add spacing between name and phone number
-            Text(
-              '$phoneNumber',
-              style: TextStyle(fontSize: 18),
-            ),
-          ],
-           ),
-        ],
-      )
-
-        ]),
-      ),
       body: Column(
         children: [
-
-
+          Column(
+            children: [
+              Container(
+                margin: EdgeInsets.only(left: 20),
+                alignment: Alignment.topLeft,
+                child: Text('Profile :',style: TextStyle(fontSize:22,fontWeight: FontWeight.bold),),
+              ),
+              Container(
+                  width: MediaQuery.of(context).size.width*0.97,
+                  child: Divider(thickness: 1,color: Colors.black,)
+              ),
+              Row(
+                children: [
+                  Padding(padding: EdgeInsets.only(left: 20)),
+                  Text(
+                    'Name :',
+                    style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 5,),
+                  Text(
+                    "$userName",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+              SizedBox(height:5),
+              Row(
+                children: [
+                  Padding(padding: EdgeInsets.only(left: 20)),
+                  Text(
+                    'Number :',
+                    style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 5,),
+                  Text(
+                    "$phoneNumber",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            ],
+          ),
           Expanded(
             child: ListView(
               padding: EdgeInsets.all(20),
               children: [
-                SizedBox(height: 15),
+
                 buildListItem(
                   icon: Icons.notifications_none,
                   title: 'Notifications',
                   color: Colors.orangeAccent,
                   onTap: () {
-                    _navigateToPage(NotificationsPage());
+
                   },
                 ),
                 SizedBox(height: 20),
@@ -127,45 +128,121 @@ class _ProfileState extends State<Profile> {
                     _navigateToPage(AboutUs());
                   },
                 ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 5,left: 5,bottom: 15),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  elevation: MaterialStateProperty.all<double>(5.0),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(right: 50,left: 50,bottom: 50),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                        elevation: MaterialStateProperty.all<double>(5.0),
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.hovered)) {
+                              return Colors.orangeAccent;
+                            }
+                            return Colors.grey.shade500;
+                          },
+                        ),
+                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero, // No border radius
+                              ),
+                              backgroundColor: Colors.white, // Set background color
+                              child: SizedBox(
+                                width: 250, // Set width
+                                height: 150, // Set height
+                                child: Column(
+                                  //mainAxisAlignment: MainAxisAlignment.,
+                                  // crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10,right: 40),
+                                      child: Text(
+                                        "Confirm Logging Out",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10,left: 20,right: 20),
+                                      child: Text(
+                                        "Booking load is faster when you are logged in. Are you sure you want to logout?",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        TextButton(
+                                          onPressed: () async {
+                                            Navigator.of(context).pop();
+                                            SharedPreferences prefs =
+                                            await SharedPreferences.getInstance();
+                                            await prefs.remove('isLoggedIn');
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => LoginScreen(onLogin: () {},),
+                                              ),
+                                            );
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(left: 120,top: 30),
+                                            child: Text(
+                                              "Yes",
+                                              style: TextStyle(
+                                                color: Colors.blue,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(top: 30,),
+                                            child: Text(
+                                              "No",
+                                              style: TextStyle(
+                                                color: Colors.blue,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Text(
+                        "Logout",
+                        style: TextStyle(color: Colors.black, fontSize: 20),
+                      ),
                     ),
                   ),
-                  backgroundColor:
-                  MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.hovered)) {
-                        return Colors.orangeAccent;
-                      }
-                      return Colors.grey.shade500;
-                    },
-                  ),
-                ),
-                onPressed: () async {
-                  // Clear user session
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  await prefs.remove('isLoggedIn');
-
-                  // Navigate to login screen
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>LoginScreen(onLogin: () {  },)));
-                },
-
-                child: Text(
-                  "Logout",
-                  style: TextStyle(color: Colors.black, fontSize: 20),
-                ),
-              ),
+                )
+              ],
             ),
           ),
         ],

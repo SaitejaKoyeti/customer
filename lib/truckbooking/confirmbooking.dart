@@ -24,7 +24,7 @@ class confirm extends StatelessWidget {
                         children: [
                           IconButton(
                             onPressed: () {
-                              Navigator.push(context,MaterialPageRoute(builder:(context)=>MyHomePage(enteredName: '', documentId: '', phoneNumber: '', onLogout: () {  },)));
+                              Navigator.push(context,MaterialPageRoute(builder:(context)=>MyHomePage(enteredName: '', phoneNumber: '',)));
                             },
                             icon: Icon(Icons.arrow_back, color: Colors.black),
                           ),

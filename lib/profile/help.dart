@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HelpPage extends StatelessWidget {
   @override
@@ -8,33 +9,161 @@ class HelpPage extends StatelessWidget {
         title: Text('Help'),
       ),
       body: Center(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildCard(
+                title: 'Contact Information',
+                content:
+                'Make your supply chain more efficient. Contact us right now for excellent logistics and transportation!',
+              ),
+              _buildMailCard(
+                title: 'Company Mail',
+                content: 'info@transmaa.com',
+              ),
+              _buildPhoneCard(
+                title: 'Office Phone Number',
+                content: '7026943777\n9108883777',
+              ),
+              _buildCard(
+                title: 'Office Location',
+                content:
+                '278/14 parimala nagara, opp SBI Bank, Arishinakunte, kasaba Hobli, Nelamangala Taluk, Bangalore Rural-562123',
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCard({required String title, required String content}) {
+    return Card(
+      elevation: 4,
+      margin: EdgeInsets.only(bottom: 16.0),
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-            padding: const EdgeInsets.only(left: 20, bottom: 5),
-             child: Container(
-              child: Image.asset(
-                'assets/transmaa_logo.png',
-                fit: BoxFit.cover,
-                height: 45,
-                width: 161,
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepOrange,
               ),
             ),
-          ),
-            SizedBox(height: 5,),
-            Text('Contact Information', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,color: Colors.deepOrange),),
-            Text(' Make your supply chain more efficient. Contact us right now for excellent logistics and transportation!'),
-            Text('Company Mail', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,color: Colors.deepOrange),),
-            Text('info@transmaa.com'),
-            Text('Office Phone Number', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,color: Colors.deepOrange),),
-            Text('7026943777'),
-            Text('9108883777'),
-            Text('Office Location', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,color: Colors.deepOrange),),
-            Text('278/14 parimala nagara, opp SBI Bank, Arishinakunte, kasaba Hobli, Nelamangala Taluk, Bangalore Rural-562123'),
-            Text(''),
+            SizedBox(height: 8),
+            Text(
+              content,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildPhoneCard({required String title, required String content}) {
+    return GestureDetector(
+      onTap: () {
+        _launchPhone(content);
+      },
+      child: Card(
+        elevation: 4,
+        margin: EdgeInsets.only(bottom: 16.0),
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepOrange,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                content,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMailCard({required String title, required String content}) {
+    return GestureDetector(
+      onTap: () {
+        _launchMail(content);
+      },
+      child: Card(
+        elevation: 4,
+        margin: EdgeInsets.only(bottom: 16.0),
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepOrange,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                content,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _launchPhone(String phoneNumber) async {
+    String url = 'tel:$phoneNumber';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  void _launchMail(String mail) async {
+    try {
+      String url = 'mailto:$mail';
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not launch $url';
+      }
+    } catch (e) {
+      print('Error launching email: $e');
+    }
+  }
+
 }

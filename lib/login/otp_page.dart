@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../bottom_navigation_screens/loads.dart';
 import '../bottom_navigation_screens/myhome.dart';
 import 'login_page.dart';
 
@@ -23,6 +24,8 @@ class _OTPState extends State<OTP> with SingleTickerProviderStateMixin {
   late FocusNode _otpFocusNode;
   late AnimationController _animationController;
   late Animation<double> _animation;
+  late Timer _timer;
+  int _start = 60;
 
   @override
   void initState() {
@@ -38,6 +41,9 @@ class _OTPState extends State<OTP> with SingleTickerProviderStateMixin {
       curve: Curves.easeInOut,
     );
     _animationController.repeat(reverse: true);
+
+    // Start the timer
+    startTimer();
   }
 
   @override
@@ -45,7 +51,26 @@ class _OTPState extends State<OTP> with SingleTickerProviderStateMixin {
     _otpFocusNode.dispose();
     _otpController.dispose();
     _animationController.dispose();
+    // Dispose of the timer
+    _timer.cancel();
     super.dispose();
+  }
+
+  void startTimer() {
+    const oneSec = const Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSec,
+          (Timer timer) {
+        if (_start == 0) {
+          // If timer reaches zero, cancel the timer
+          timer.cancel();
+        } else {
+          setState(() {
+            _start--;
+          });
+        }
+      },
+    );
   }
 
   @override
@@ -91,14 +116,17 @@ class _OTPState extends State<OTP> with SingleTickerProviderStateMixin {
         child: Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [Colors.grey, Color(0xffBBDABB)]),
+            gradient: LinearGradient(colors: [Colors.white, Colors.white]),
           ),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             width: double.infinity,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                SizedBox(
+                  height: 50,
+                ),
                 Text(
                   'Verify your Phone Number',
                   style: TextStyle(
@@ -108,7 +136,7 @@ class _OTPState extends State<OTP> with SingleTickerProviderStateMixin {
                   textAlign: TextAlign.start,
                 ),
                 SizedBox(
-                  height: 50,
+                  height: 30,
                 ),
                 Pinput(
                   length: 6,
@@ -119,7 +147,8 @@ class _OTPState extends State<OTP> with SingleTickerProviderStateMixin {
                   onChanged: (value) {
                     // Check if entered OTP is correct
                     if (value.length == 6) {
-                      _verifyOTP(value, widget.phoneNumber); // Pass phoneNumber parameter
+                      _verifyOTP(value,
+                          widget.phoneNumber); // Pass phoneNumber parameter
                     } else {
                       // Clear the error message if OTP is not 6 digits
                       setState(() {
@@ -131,10 +160,17 @@ class _OTPState extends State<OTP> with SingleTickerProviderStateMixin {
                 SizedBox(
                   height: 18,
                 ),
-                // Display error message
+                // Display error message or timer
                 Text(
-                  errorMessage,
+                  errorMessage.isNotEmpty
+                      ? errorMessage
+                      : '$_start seconds remaining',
                   style: TextStyle(color: Colors.red),
+                ),
+                // Button to resend OTP
+                ElevatedButton(
+                  onPressed: _start == 0 ? _resendOTP : null,
+                  child: Text('Resend OTP'),
                 ),
               ],
             ),
@@ -162,23 +198,25 @@ class _OTPState extends State<OTP> with SingleTickerProviderStateMixin {
         // Add more fields as needed
       });
 
-
-// Save collection with entered name
-
+      // Save collection with entered name
 
       // Set the logged-in state
       await _setLoggedIn(true);
 
-      // Navigate to the next screen on successful verification
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MyHomePage(
-            enteredName: widget.enteredName,
-            phoneNumber: widget.phoneNumber, documentId: '', onLogout: () {  },
+      // Check if the timer has expired
+      if (_start == 0) {
+        setState(() {
+          errorMessage = 'Your OTP has expired. Please click "Resend OTP" to try again.';
+        });
+      } else {
+        // Navigate to the next screen on successful verification
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MyHomePage(enteredName: '', phoneNumber: '',),
           ),
-        ),
-      );
+        );
+      }
     } catch (e) {
       // Handle verification errors
       print("Error verifying OTP: $e");
@@ -201,8 +239,43 @@ class _OTPState extends State<OTP> with SingleTickerProviderStateMixin {
     }
   }
 
+
   Future<void> _setLoggedIn(bool isLoggedIn) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', isLoggedIn);
+  }
+
+  // Function to handle resend OTP
+// Function to handle resend OTP
+  void _resendOTP() async {
+    _otpController.clear();
+    // Reset the timer
+    setState(() {
+      _start = 60;
+    });
+    // Start the timer again
+    startTimer();
+
+    try {
+      await APIs.auth.verifyPhoneNumber(
+        phoneNumber: widget.phoneNumber,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          // Handle verification completed
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          // Handle verification failed
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          LoginScreen.verify = verificationId;
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          // Handle code auto retrieval timeout
+        },
+        timeout: Duration(seconds: 60),
+      );
+    } catch (e) {
+      print('Error resending OTP: $e');
+      // Handle error
+    }
   }
 }

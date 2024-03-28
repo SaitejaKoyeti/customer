@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'otp_page.dart';
 
@@ -79,7 +78,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     Expanded(
                       child: TextField(
                         controller: nameController,
-
                         decoration: const InputDecoration(
                           hintText: 'Enter your name',
                           border: InputBorder.none,
@@ -128,10 +126,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             phone = value;
                           });
                         },
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), // Allow only numbers
-                          LengthLimitingTextInputFormatter(10), // Limit length to 10 characters
-                        ],
                         decoration: const InputDecoration(
                           hintText: 'Enter your number',
                           border: InputBorder.none,
@@ -201,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: _isLoading
                       ? const Center(
                     child: CircularProgressIndicator(
-                      color: Colors.orange,
+                      color: Colors.white,
                     ),
                   )
                       : Padding(

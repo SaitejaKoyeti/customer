@@ -2,22 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../login/login_page.dart';
 import '../profile/help.dart';
-import '../profile/notifications.dart';
 import 'buy_sell.dart';
 import 'finance_insurance.dart';
 import 'fuel.dart';
-import 'history.dart';
 import 'loads.dart';
 import 'profile.dart';
 
 class MyHomePage extends StatefulWidget {
   final String enteredName;
-  final String documentId;// Add this field
+  final String phoneNumber;
 
-  MyHomePage({Key? key, required this.enteredName, required this.documentId, required String phoneNumber, required void Function() onLogout}) : super(key: key);
-
-
-
+  MyHomePage({Key? key, required this.enteredName,
+    required this.phoneNumber}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -32,10 +28,12 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _screens = [
-      Loads(  enteredName: widget.enteredName,
-        phoneNumber: '',),
+      Loads(
+        enteredName: widget.enteredName,
+        phoneNumber: widget.phoneNumber,
+      ),
       BuyAndSell(),
-      FinanceAndInsurance(documentId: widget.documentId,),
+      FinanceAndInsurance(documentId: '',),
       Fuel(),
       Profile()
     ];
@@ -62,12 +60,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       appBar: AppBar(
-
         backgroundColor: Colors.grey[100],
         leadingWidth: 150,
-        toolbarHeight: 60,
         leading: Padding(
           padding: EdgeInsets.all(8.0),
           child: Image.asset(
@@ -76,25 +71,20 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         actions: <Widget>[
-          Tooltip(
-            message: 'Notifications',
-            child: Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: IconButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder:(context)=>NotificationsPage()));
-                },
-                icon: ImageIcon(AssetImage('assets/icons/bell.png')),
-              ),
-            ),
-          ),
+
           Tooltip(
             message: 'Help',
             child: Padding(
               padding: const EdgeInsets.only(right: 10),
               child: IconButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder:(context)=>HelpPage()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HelpPage(),
+                    ),
+                  );
+
                 },
                 icon: ImageIcon(AssetImage('assets/icons/question.png')),
               ),
@@ -119,10 +109,10 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: ImageIcon(
                 AssetImage('assets/icons/financeandinsurance_icon.png')),
-            label: 'Finance & Insurance',
+            label: 'Finance &\nInsurance',
           ),
           BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage('assets/icons/img.png')),
+            icon: ImageIcon(AssetImage('assets/icons/buyandsell_icon.png')),
             label: 'Fuel',
           ),
           BottomNavigationBarItem(

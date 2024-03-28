@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AuthenticationWrapper(enteredName: '', documentId: '', phoneNumber: '',),
+      home: AuthenticationWrapper(enteredName: '', phoneNumber: '',),
     );
   }
 }
@@ -34,18 +34,16 @@ class MyApp extends StatelessWidget {
 class AuthenticationWrapper extends StatefulWidget {
 
   final String enteredName;
-  final String documentId;
   final String phoneNumber;
-
-  AuthenticationWrapper({required this.enteredName, required this.documentId, required this.phoneNumber});
-
-
+  AuthenticationWrapper({required this.enteredName,
+    required this.phoneNumber});
   @override
 
   _AuthenticationWrapperState createState() => _AuthenticationWrapperState();
 }
+
 class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
-  late bool _isLoggedIn;
+  bool _isLoggedIn = false;
 
   @override
   void initState() {
@@ -62,27 +60,16 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
     });
   }
 
-  Future<void> setAuthenticationStatus(bool isLoggedIn) async {
+  void setAuthenticationStatus(bool isLoggedIn) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', isLoggedIn);
+    prefs.setBool('isLoggedIn', isLoggedIn);
     setState(() {
       _isLoggedIn = isLoggedIn;
     });
   }
 
-  void handleLogout() {
-    setAuthenticationStatus(false); // Update authentication status to false
-  }
-
   @override
   Widget build(BuildContext context) {
-    return _isLoggedIn
-        ? MyHomePage(
-      enteredName: widget.enteredName,
-      documentId: widget.documentId,
-      phoneNumber: widget.phoneNumber,
-      onLogout: handleLogout, // Pass the logout handler to MyHomePage
-    )
-        : LoginScreen(onLogin: () => setAuthenticationStatus(true));
+    return _isLoggedIn ? MyHomePage(enteredName: widget.enteredName, phoneNumber:widget.phoneNumber,) : LoginScreen(onLogin: () => setAuthenticationStatus(true));
   }
 }
