@@ -113,6 +113,42 @@ class _LoadsState extends State<Loads> {
       return [];
     }
   }
+  Future<String?> _getImageUrlFromFirestore() async {
+    try {
+      // Fetch the image URL from Firestore
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+      await FirebaseFirestore.instance.collection('Discount').get();
+
+      // Assuming the field name storing the image URL is 'imageUrl'
+      if (querySnapshot.docs.isNotEmpty) {
+        String? ImageURL = querySnapshot.docs.first.data()['ImageURL'];
+        return ImageURL;
+      } else {
+        print('No documents found in the collection.');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching image URL: $e');
+      return null;
+    }
+  }
+  Future<List<String>> _getFirebaseImages() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('Advertisement').limit(3).get();
+      List<String> imageUrls = [];
+      querySnapshot.docs.forEach((doc) {
+        // Assuming 'imageUrl' is the field name where image URLs are stored in Firestore
+        String? ImageURL = doc['ImageURL'];
+        if (ImageURL != null) {
+          imageUrls.add(ImageURL);
+        }
+      });
+      return imageUrls;
+    } catch (e) {
+      print("Error fetching image URLs: $e");
+      return []; // Return an empty list in case of error
+    }
+  }
 
   void _swapTextFields() {
     String temp = _fromController.text;
@@ -389,7 +425,25 @@ class _LoadsState extends State<Loads> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: Center(
-                child: Image.asset('assets/offerimage.png'),
+                child: FutureBuilder<String?>(
+                  future: _getImageUrlFromFirestore(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      final imageURL = snapshot.data;
+                      if (imageURL != null) {
+                        return Image.network(imageURL); // Display the fetched image
+                      } else {
+                        return Text('No image found');
+                      }
+                    }
+                  },
+                ),
               ),
             ),
             Padding(
@@ -397,12 +451,34 @@ class _LoadsState extends State<Loads> {
               child: Center(
                 child: SizedBox(
                   height: 150,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    controller: _controller,
-                    itemCount: 2,
-                    itemBuilder: (context, index) {
-                      return Image.asset('assets/sale${index + 1}.png');
+                  child: FutureBuilder(
+                    future: _getFirebaseImages(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        List<String>? imageUrls = snapshot.data as List<String>?;
+
+                        if (imageUrls != null && imageUrls.isNotEmpty) {
+                          return ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: imageUrls.length,
+                            separatorBuilder: (context, index) => SizedBox(width: 10), // Add space between images
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4), // Add padding around each image
+                                child: Image.network(imageUrls[index]),
+                              );
+                            },
+                          );
+                        } else {
+                          return Text('No images found');
+                        }
+                      }
                     },
                   ),
                 ),
