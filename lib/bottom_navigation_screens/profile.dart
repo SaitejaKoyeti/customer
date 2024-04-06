@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../login/login_page.dart';
 import '../profile/aboutpage.dart';
 import '../profile/help.dart';
+import '../profile/history.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -55,47 +56,56 @@ class _ProfileState extends State<Profile> {
     return Scaffold(
       body: Column(
         children: [
-          Column(
-            children: [
-              Container(
-                margin: EdgeInsets.only(left: 20),
-                alignment: Alignment.topLeft,
-                child: Text('Profile :',style: TextStyle(fontSize:22,fontWeight: FontWeight.bold),),
-              ),
-              Container(
-                  width: MediaQuery.of(context).size.width*0.97,
-                  child: Divider(thickness: 1,color: Colors.black,)
-              ),
-              Row(
-                children: [
-                  Padding(padding: EdgeInsets.only(left: 20)),
-                  Text(
-                    'Name :',
-                    style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(width: 5,),
-                  Text(
-                    "$userName",
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ],
-              ),
-              SizedBox(height:5),
-              Row(
-                children: [
-                  Padding(padding: EdgeInsets.only(left: 20)),
-                  Text(
-                    'Number :',
-                    style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(width: 5,),
-                  Text(
-                    "$phoneNumber",
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ],
-              ),
-            ],
+          Padding(
+            padding: EdgeInsets.only(top: 10, left: 20, right: 20), // Adjust the padding values as needed
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center, // Center the contents vertically
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center, // Center the avatar horizontally
+                  children: [
+                    Container(
+                      width: 120, // Adjust the width of the container
+                      height: 120, // Adjust the height of the container
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.orangeAccent,
+                        image: DecorationImage(
+                          image: AssetImage('assets/prof3.jpg'), // Replace 'images/prof1.jpg' with the actual asset path of the profile photo
+                          // fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(height: 10), // Add spacing between the avatar and text
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center, // Center the text horizontally
+                  children: [
+                    Center( // Center the name horizontally
+                      child: Text(
+                        ' $userName',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Center( // Center the phone number horizontally
+                      child: Text(
+                        ' $phoneNumber',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: ListView(
@@ -107,7 +117,15 @@ class _ProfileState extends State<Profile> {
                   title: 'Notifications',
                   color: Colors.orangeAccent,
                   onTap: () {
-
+                  },
+                ),
+                SizedBox(height: 20),
+                buildListItem(
+                  icon: Icons.history_edu_outlined,
+                  title: 'History',
+                  color: Colors.orangeAccent,
+                  onTap: () {
+                    _navigateToPage(HistoryScreen()); // Pass customer number
                   },
                 ),
                 SizedBox(height: 20),

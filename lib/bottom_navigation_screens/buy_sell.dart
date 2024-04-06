@@ -1,6 +1,9 @@
 import 'dart:typed_data';
+import 'dart:typed_data';
+import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -19,8 +22,8 @@ class _BuyAndSellState extends State<BuyAndSell> {
   final TextEditingController yearsOfVehicleController =
   TextEditingController();
 
-  bool showTextFields = false; // Changed initial state to false
-  Color sellButtonColor = Colors.orangeAccent;
+  bool showTextFields = true; // Changed initial state to false
+  Color sellButtonColor = Colors.green.shade900;
   Color byeButtonColor = Colors.orangeAccent;
   bool isDataComplete = false;
 
@@ -44,6 +47,16 @@ class _BuyAndSellState extends State<BuyAndSell> {
       'Years of Vehicle': yearsOfVehicleController.text,
       'ImageURLs': imageUrls,
     });
+
+    // Reset the _images list after storing data
+    setState(() {
+      _images = List.filled(4, null);
+    });
+
+    // Disable image selection in the ImagePick widgets
+    for (int i = 0; i < _imagePickKeys.length; i++) {
+      _imagePickKeys[i].currentState?.clearImage(i);
+    }
 
     return imageUrls.join(", ");
   }
@@ -324,124 +337,196 @@ class _BuyAndSellState extends State<BuyAndSell> {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        TextFormField(
-                          controller: nameController,
-                          style: TextStyle(
+                        Padding(
+                          padding: EdgeInsets.only(left: 8,right: 8),
+                          child: TextFormField(
+                            controller: nameController,
+                            style: TextStyle(
                               color: Colors.black87,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                          decoration: InputDecoration(
-                            labelText: 'Name',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: phoneNumberController,
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                          decoration: InputDecoration(
-                            labelText: 'Phone Number',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: vehicleNoController,
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                          decoration: InputDecoration(
-                            labelText: 'Vehicle No',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: vehicleModelController,
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                          decoration: InputDecoration(
-                            labelText: 'Vehicle Model',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: rcNoController,
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                          decoration: InputDecoration(
-                            labelText: 'RC No',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: yearsOfVehicleController,
-                          style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                          decoration: InputDecoration(
-                            labelText: 'Years of Vehicle',
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            fillColor: Colors.white,
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              fontSize: 16,
                             ),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+                            ],
+                            decoration: InputDecoration(
+                              labelText: 'Name',
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8,right: 8),
+                          child: TextFormField(
+                            controller: phoneNumberController,
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            keyboardType: TextInputType.phone,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),],
+                            decoration: InputDecoration(
+                              labelText: 'Phone Number',
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8,right: 8),
+                          child: TextFormField(
+                            controller: vehicleNoController,
+                            onChanged: (value) {
+                              setState(() {
+                                // Apply formatting rules
+                                String formattedText = '';
+                                for (int i = 0; i < value.length; i++) {
+                                  if (i < 2) {
+                                    // Only allow alphabets for the first five characters
+                                    formattedText += value[i].replaceAll(RegExp(r'[^A-Za-z]'), '').toUpperCase();
+                                  } else if (i >= 2 && i < 4) {
+                                    // Only allow numbers for the next four characters
+                                    formattedText += value[i].replaceAll(RegExp(r'[^0-9]'), '');
+                                  } else {
+                                    // Allow alphabets and numbers for the remaining characters
+                                    formattedText += value[i];
+                                  }
+                                }
+                                vehicleNoController.value = vehicleNoController.value.copyWith(
+                                  text: formattedText,
+                                  selection: TextSelection.collapsed(offset: formattedText.length),
+                                  composing: TextRange.empty,
+                                ); // Clear the error message when the user starts typing
+                              });
+                            },
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                            decoration: InputDecoration(
+                              labelText: 'Vehicle No',
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8,right: 8),
+                          child: TextFormField(
+                            controller: vehicleModelController,
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                            ],
+                            decoration: InputDecoration(
+                              labelText: 'Vehicle Model',
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8,right: 8),
+                          child: TextFormField(
+                            controller: rcNoController,
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                            ],
+                            decoration: InputDecoration(
+                              labelText: 'RC No',
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8,right: 8),
+                          child: TextFormField(
+                            controller: yearsOfVehicleController,
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(4),],
+
+                            decoration: InputDecoration(
+                              labelText: 'Year of Vehicle',
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                            ),
                           ),
                         ),
                       ],
@@ -471,22 +556,25 @@ class _BuyAndSellState extends State<BuyAndSell> {
                     // Check if all fields are valid and all images are uploaded
                     if (areFieldsValid() && allImagesUploaded()) {
                       try {
-                        String imageURLs = await saveUserDataToFirestore();
-                        setState(() {
-                          // Reset text field controllers
-                          nameController.clear();
-                          phoneNumberController.clear();
-                          vehicleNoController.clear();
-                          vehicleModelController.clear();
-                          rcNoController.clear();
-                          yearsOfVehicleController.clear();
+                        String ImageURLs = await saveUserDataToFirestore();
+                        // Inside onPressed callback of ElevatedButton
+// Reset text field controllers
+                        nameController.clear();
+                        phoneNumberController.clear();
+                        vehicleNoController.clear();
+                        vehicleModelController.clear();
+                        rcNoController.clear();
+                        yearsOfVehicleController.clear();
 
-                          // Reset images list
+// Reset images list
+                        setState(() {
                           _images = List.filled(4, null);
                         });
 
-                        // Clear images from UI
-                        _imagePickKey.currentState?.clearImage();
+// Clear images from UI
+                        _imagePickKeys.asMap().forEach((index, key) {
+                          key.currentState?.clearImage(index);
+                        });
 
                         // Show SnackBar for success
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -511,27 +599,30 @@ class _BuyAndSellState extends State<BuyAndSell> {
                       // Show SnackBar for missing images
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Please fill all text field and upload all images.'),
+                          content: Text(
+                              'Please fill all text fields and upload all images.'),
                           duration: Duration(seconds: 5), // Optional duration
                         ),
                       );
                     }
                   },
                   style: ButtonStyle(
-                    backgroundColor:
-                    MaterialStateProperty.resolveWith<Color>((states) {
-                      if (states.contains(MaterialState.disabled)) {
-                        return saveButtonColor.withOpacity(0.5);
-                      }
-                      return saveButtonColor;
-                    }),
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (states) {
+                        if (states.contains(MaterialState.disabled)) {
+                          return saveButtonColor.withOpacity(0.5);
+                        }
+                        return saveButtonColor;
+                      },
+                    ),
                   ),
                   child: Text(
                     'Save Data',
                     style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
+                      fontSize: 15,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -567,16 +658,34 @@ class _BuyAndSellState extends State<BuyAndSell> {
     );
   }
 
-  final GlobalKey<_ImagePickState> _imagePickKey = GlobalKey<_ImagePickState>();
+  List<GlobalKey<_ImagePickState>> _imagePickKeys =
+  List.generate(4, (index) => GlobalKey<_ImagePickState>());
 
   Widget buildImagePick() {
     return Row(
       children: List.generate(4, (index) {
+        String containerName;
+        switch (index) {
+          case 0:
+            containerName = 'Front side';
+            break;
+          case 1:
+            containerName = 'Back side';
+            break;
+          case 2:
+            containerName = 'Right side';
+            break;
+          case 3:
+            containerName = 'Left side';
+            break;
+          default:
+            containerName = '';
+        }
         return Expanded(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: ImagePick(
-              key: _imagePickKey,
+              key: _imagePickKeys[index],
               onImagePicked: (Uint8List? image) {
                 setState(() {
                   _images[index] = image;
@@ -584,6 +693,7 @@ class _BuyAndSellState extends State<BuyAndSell> {
               },
               width: 140,
               height: 140,
+              containerName: containerName,
             ),
           ),
         );
@@ -674,16 +784,17 @@ Future<void> _addToInterestedCollection(
     print('Error adding to InterestedCollection: $e');
   }
 }
-
 class ImagePick extends StatefulWidget {
   final Function(Uint8List?) onImagePicked;
   final double width;
   final double height;
+  final String containerName; // Added container name property
 
   ImagePick({
     required this.onImagePicked,
     required this.width,
     required this.height,
+    required this.containerName, // Added container name parameter
     required GlobalKey<_ImagePickState> key,
   });
 
@@ -693,6 +804,13 @@ class ImagePick extends StatefulWidget {
 
 class _ImagePickState extends State<ImagePick> {
   Uint8List? _image;
+
+  void clearImage(int i) {
+    setState(() {
+      _image = null;
+    });
+    widget.onImagePicked(null);
+  }
 
   void selectImage() async {
     Uint8List? img = await pickImage(ImageSource.gallery);
@@ -716,81 +834,82 @@ class _ImagePickState extends State<ImagePick> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 5,
-            blurRadius: 7,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 10),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  child: Text(
-                    'Front side',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Divider(
-                  thickness: 1,
-                  color: Colors.brown,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(6),
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.blue[50],
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: _image != null
-                            ? Image.memory(
-                          _image!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                        )
-                            : Container(),
-                      ),
-                      Positioned(
-                        child: IconButton(
-                          onPressed: selectImage,
-                          icon: Icon(Icons.add_a_photo),
-                        ),
-                        bottom: 30,
-                        left: 20,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20),
-              ],
+    return GestureDetector(
+      onTap: () {
+        clearImage( widget.onImagePicked(4 as Uint8List?));
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    child: Text(
+                      widget.containerName, // Use container name here
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Divider(
+                    thickness: 1,
+                    indent: 8,
+                    endIndent: 8,
+                    color: Colors.brown,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: _image != null
+                              ? Image.memory(
+                            _image!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          )
+                              : Container(),
+                        ),
+                        Positioned(
+                          child: IconButton(
+                            onPressed: selectImage,
+                            icon: Icon(Icons.add_a_photo),
+                          ),
+                          bottom: 30,
+                          left: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-  // Add this method to reset the image
-  void clearImage() {
-    setState(() {
-      _image = null;
-    });
-    widget.onImagePicked(null); // Reset the image in the parent widget
-  }
 }
+

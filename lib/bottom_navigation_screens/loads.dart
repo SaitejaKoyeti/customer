@@ -30,9 +30,10 @@ class Loads extends StatefulWidget {
 }
 
 class _LoadsState extends State<Loads> {
+  late PageController _pageController;
+  int _currentPageIndex = 0;
   late Timer timer;
-  late ScrollController _controller;
-  int _currentIndex = 0;
+  List<String> _imageUrls = [];
 
   late TextEditingController _fromController;
   late TextEditingController _toController;
@@ -47,19 +48,9 @@ class _LoadsState extends State<Loads> {
   void initState() {
     super.initState();
     fetchUserData();
-    _controller = ScrollController();
-    timer = Timer.periodic(Duration(seconds: 3), (Timer t) {
-      if (_currentIndex < 1) {
-        _currentIndex++;
-      } else {
-        _currentIndex = 0;
-      }
-      _controller.animateTo(
-        _currentIndex * MediaQuery.of(context).size.width,
-        duration: Duration(milliseconds: 500),
-        curve: Curves.linear,
-      );
-    });
+    _pageController = PageController(initialPage: 0);
+    _imageUrls = []; // Initialize the list
+    _fetchImagesAndUpdate();
 
     _fromController = TextEditingController();
     _toController = TextEditingController();
@@ -69,9 +60,47 @@ class _LoadsState extends State<Loads> {
   @override
   void dispose() {
     timer.cancel();
+    _pageController.dispose();
     _fromController.dispose();
     _toController.dispose();
     super.dispose();
+  }
+  void _fetchImagesAndUpdate() async {
+    _imageUrls = await _getFirebaseImages();
+    setState(() {});
+    startTimer();
+  }
+
+  void startTimer() {
+    timer = Timer.periodic(Duration(seconds: 3), (timer) {
+      if (_currentPageIndex < _imageUrls.length - 1) {
+        _currentPageIndex++;
+      } else {
+        _currentPageIndex = 0;
+      }
+      _pageController.animateToPage(
+        _currentPageIndex,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+  Widget _buildSlideIndicator() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        _imageUrls.length,
+            (index) => Container(
+          width: index == _currentPageIndex ? 14 : 10, // Adjust width for current indicator
+          height: 5, // Set a fixed height for all indicators
+          margin: EdgeInsets.symmetric(horizontal: 5),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(3), // Make it rectangular
+            color: index == _currentPageIndex ? Colors.orangeAccent : Colors.grey,
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> fetchUserData() async {
@@ -134,7 +163,7 @@ class _LoadsState extends State<Loads> {
   }
   Future<List<String>> _getFirebaseImages() async {
     try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('Advertisement').limit(3).get();
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('Advertisement').get();
       List<String> imageUrls = [];
       querySnapshot.docs.forEach((doc) {
         // Assuming 'imageUrl' is the field name where image URLs are stored in Firestore
@@ -428,11 +457,7 @@ class _LoadsState extends State<Loads> {
                 child: FutureBuilder<String?>(
                   future: _getImageUrlFromFirestore(),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else if (snapshot.hasError) {
+                    if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     } else {
                       final imageURL = snapshot.data;
@@ -448,40 +473,32 @@ class _LoadsState extends State<Loads> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: Center(
-                child: SizedBox(
-                  height: 150,
-                  child: FutureBuilder(
-                    future: _getFirebaseImages(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: CircularProgressIndicator(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 150,
+                    child: _imageUrls.isEmpty
+                        ? Container() // Show an empty container
+                        : PageView.builder(
+                      controller: _pageController,
+                      itemCount: _imageUrls.length,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPageIndex = index;
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Image.network(_imageUrls[index]),
                         );
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else {
-                        List<String>? imageUrls = snapshot.data as List<String>?;
-
-                        if (imageUrls != null && imageUrls.isNotEmpty) {
-                          return ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: imageUrls.length,
-                            separatorBuilder: (context, index) => SizedBox(width: 10), // Add space between images
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4), // Add padding around each image
-                                child: Image.network(imageUrls[index]),
-                              );
-                            },
-                          );
-                        } else {
-                          return Text('No images found');
-                        }
-                      }
-                    },
+                      },
+                    ),
                   ),
-                ),
+                  SizedBox(height: 10),
+                  _buildSlideIndicator(),
+                ],
               ),
             ),
             Padding(
